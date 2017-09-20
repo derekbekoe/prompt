@@ -1,0 +1,21 @@
+{% extends "_layout.html" %}
+{% block body %}
+<div id="container">
+<section id="main">
+<div id="main-wrapper">
+<h1 class="title">Prompt</h1>
+<hr class="separator">
+{% if full_name %}
+<h2 class="subtitle">Hi {{ full_name }}!</h2>
+<a href="logout"><button class="btn">Log out</button></a>
+{% endif %}
+{% if not full_name %}
+<a href="login"><button class="btn">Log in</button></a>
+{% endif %}
+</div>
+</section>
+<footer>
+<h5 id="copyright">© Prompt 0.15 | <a href="https://derekbekoe.com" target="_blank">Derek Bekoe</a></h5>
+</footer>
+</div>
+{% endblock %}

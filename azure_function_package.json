@@ -1,0 +1,11 @@
+{
+    "name": "function-1",
+    "preferGlobal": true,
+    "version": "0.0.1",
+    "author": "Derek Bekoe <derek@derekbekoe.com>",
+    "description": "Function App for Deleting ACI instances.",
+    "license": "MIT",
+    "dependencies": {
+        "request": "2.83.0"
+    }
+}
