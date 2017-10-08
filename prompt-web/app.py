@@ -12,7 +12,7 @@ from flask_cors import CORS, cross_origin
 
 from adal import AuthenticationContext
 
-# The hostname where the app is running. e.g. https://builder2017.azurewebsites.net/
+# The hostname where the app is running. e.g. https://myapp.azurewebsites.net/
 REDIRECT_BASE = os.environ.get('REDIRECT_BASE')
 # This is random. You can make it whatever you want.
 APP_SECRET = os.environ.get('APP_SECRET')
@@ -22,11 +22,12 @@ AUTH_TENANT = os.environ.get('AUTH_TENANT')
 AUTH_CLIENTID = os.environ.get('AUTH_CLIENTID')
 AUTH_CLIENTSECRET = os.environ.get('AUTH_CLIENTSECRET')
 AUTH_AUTHORITYURL = os.environ.get('AUTH_AUTHORITYURL')
-
 SUBSCRIPTION_ID = os.environ.get('SUBSCRIPTION_ID')
 
+# Env vars for ACI instances
 INSTANCE_IMAGE_NAME = os.environ.get('INSTANCE_IMAGE_NAME')
 INSTANCE_RESOURCE_GROUP = os.environ.get('INSTANCE_RESOURCE_GROUP')
+# Token for clean-up function
 ACI_FUNCTION_TOKEN = os.environ.get('ACI_FUNCTION_TOKEN')
 
 assert AUTH_TENANT and AUTH_CLIENTID and AUTH_CLIENTSECRET and AUTH_AUTHORITYURL and SUBSCRIPTION_ID, "Set the auth environment variables."
