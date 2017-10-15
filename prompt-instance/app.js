@@ -1,8 +1,19 @@
+var fs = require('fs')
 var express = require('express');
-var app = express();
-var expressWs = require('express-ws')(app);
+var https = require('https');
 var os = require('os');
 var pty = require('node-pty');
+var expressWs = require('express-ws')
+
+var options = {
+  key: fs.readFileSync('/cert/private.pem'),
+  cert: fs.readFileSync('/cert/public.pem'),
+};
+
+var app = express();
+
+var server = https.createServer(options, app);
+var expressWsInstance = expressWs(app, server);
 
 var terminals = {},
     logs = {};
@@ -99,5 +110,6 @@ app.ws('/terminals/:pid', function (ws, req) {
 var port = process.env.PORT || 3000,
     host = os.platform() === 'win32' ? '127.0.0.1' : '0.0.0.0';
 
-console.log('App listening to http://' + host + ':' + port);
-app.listen(port, host);
+server.listen(port, function(){
+  console.log("Express server listening on port " + port);
+});
