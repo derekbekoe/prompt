@@ -27,6 +27,8 @@ SUBSCRIPTION_ID = os.environ.get('SUBSCRIPTION_ID')
 # Env vars for ACI instances
 INSTANCE_IMAGE_NAME = os.environ.get('INSTANCE_IMAGE_NAME')
 INSTANCE_RESOURCE_GROUP = os.environ.get('INSTANCE_RESOURCE_GROUP')
+INSTANCE_DNS_ZONE = os.environ.get('INSTANCE_DNS_ZONE')
+DNS_RESOURCE_GROUP = os.environ.get('DNS_RESOURCE_GROUP')
 # Token for clean-up function
 ACI_FUNCTION_TOKEN = os.environ.get('ACI_FUNCTION_TOKEN')
 
@@ -144,14 +146,21 @@ def get_container_url(repo_name, user_id, pr_number, resource_group):
     if found_containers and len(found_containers) == 1:
         candidate = found_containers[0]
         instance_token = next((x.value for x in candidate.containers[0].environment_variables if x.name == 'INSTANCE_TOKEN'), None)
-        container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
+        if INSTANCE_DNS_ZONE:
+            add_dns_a_record(candidate.name, candidate.ip_address.ip)
+            container_url = 'http://{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
+        else:
+            container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
         return container_url
     import uuid
     # The name can't be too long
     name = '{}-{}-{}-{}'.format(repo_name, user_id, pr_number, uuid.uuid4().hex[:5])
     candidate = create_container(name, INSTANCE_IMAGE_NAME, pr_number, user_id, resource_group)
     instance_token = next((x.value for x in candidate.containers[0].environment_variables if x.name == 'INSTANCE_TOKEN'), None)
-    container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
+    if INSTANCE_DNS_ZONE:
+        container_url = 'http://{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
+    else:
+        container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
     return container_url
 
 def delete_old_containers(resource_group):
@@ -168,7 +177,34 @@ def delete_old_containers(resource_group):
             to_delete.append(a)
     for c in to_delete:
         client.container_groups.delete(resource_group, c.name)
+        remove_dns_a_record(c.name)
     return len(to_delete)
+
+def get_dns_client():
+    from azure.common.credentials import ServicePrincipalCredentials
+    from azure.mgmt.dns import DnsManagementClient
+    credentials = ServicePrincipalCredentials(
+        client_id = AUTH_CLIENTID,
+        secret = AUTH_CLIENTSECRET,
+        tenant = AUTH_TENANT
+    )
+    return DnsManagementClient(credentials, SUBSCRIPTION_ID)
+
+def remove_dns_a_record(record_set_name):
+    from azure.mgmt.dns.models import (ARecord, RecordSet)
+    record_type = 'a'
+    ncf = get_dns_client().record_sets
+    return ncf.delete(DNS_RESOURCE_GROUP, INSTANCE_DNS_ZONE, record_set_name, record_type)
+
+def add_dns_a_record(record_set_name, ip):
+    from azure.mgmt.dns.models import (ARecord, RecordSet)
+    ncf =  get_dns_client().record_sets
+    record = ARecord(ipv4_address=ip)
+    record_type = 'a'
+    record_set = RecordSet(name=record_set_name, type=record_type, ttl=3600)
+    record_set.arecords = [record]
+    return ncf.create_or_update(DNS_RESOURCE_GROUP, INSTANCE_DNS_ZONE, record_set_name,
+                                record_type, record_set)
 
 @app.route('/r/Azure/azure-cli/<int:pr_number>')
 def azure_cli(pr_number):

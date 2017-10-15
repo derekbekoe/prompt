@@ -11,9 +11,21 @@ RUN apt-get install -y nodejs curl libssl-dev libffi-dev python-dev build-essent
 
 # Install xterm
 WORKDIR xtermjs
-RUN npm --logevel=error install
+RUN npm --silent install
 
-RUN pip install --upgrade pip jmespath-terminal
+# Prime site-packages so it doesn't have to install everything from scratch
+RUN pip install --upgrade pip jmespath-terminal azure-cli
+
+RUN echo "\
+_python_argcomplete() {\n\
+    local IFS='\v'\n\
+    COMPREPLY=( \$(IFS=\"\$IFS\"                   COMP_LINE=\"\$COMP_LINE\"                   COMP_POINT=\"\$COMP_POINT\"                   _ARGCOMPLETE_COMP_WORDBREAKS=\"\$COMP_WORDBREAKS\"                   _ARGCOMPLETE=1                   \"\$1\" 8>&1 9>&2 1>/dev/null 2>/dev/null) )\n\
+    if [[ \$? != 0 ]]; then\n\
+        unset COMPREPLY\n\
+    fi\n\
+}\n\
+complete -o nospace -F _python_argcomplete \"az\"\n\
+" > ~/.bashrc
 
 WORKDIR /
 # Override demo files with our own
@@ -32,5 +44,4 @@ CMD sed 's/INSTANCE_TOKEN_PLACEHOLDER/'$INSTANCE_TOKEN'/' -i /xtermjs/demo/index
     for f in $TMP_PKG_DIR/*; \
     do MODULE_NAMES="$MODULE_NAMES $f"; \
     done; \
-    pip install $MODULE_NAMES; \
-    pip install --force-reinstall --upgrade azure-nspkg azure-mgmt-nspkg;'; cp azure-cli/packaged_releases/az.completion ~/.bashrc; echo -e "\nexport PS1='$ '\n" >> ~/.bashrc; cd /azure-cli; npm start --prefix /xtermjs
+    npm run build --prefix /xtermjs & python -m pip install --no-cache-dir $MODULE_NAMES --no-clean'; echo "\nexport PS1='$ '\n" >> ~/.bashrc; cd /azure-cli; node /xtermjs/demo/app

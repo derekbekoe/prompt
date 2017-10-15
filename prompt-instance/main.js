@@ -35,7 +35,6 @@ function createTerminal() {
 
     term.open(terminalContainer, true);
     term.writeln('Welcome!');
-    term.writeln("Use 'cd /azure-cli' to enter source code directory.");
     term.writeln("Use 'git log' to view commit information.");
     term.writeln("Ctrl+D to exit container and refresh to pull new commits.");
     term.fit();

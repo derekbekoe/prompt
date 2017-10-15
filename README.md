@@ -25,6 +25,6 @@ docker run -d -p 5000:80 -e APP_SECRET=XXXX -e AUTH_TENANT=XXXX -e AUTH_CLIENTID
 Example:
 ```bash
 cd prompt-instance
-sudo docker build -t derekbekoe/prompt-instance-azure-cli:0.5 .
-sudo docker run -d -p 4999:1000 -e PR_NUM=XXXX -e PORT=1000 -e INSTANCE_TOKEN=XXXX derekbekoe/prompt-instance-azure-cli:0.5
+sudo docker build -t derekbekoe/prompt-instance-azure-cli:0.6 .
+sudo docker run -d -p 4000:1000 -e PR_NUM=4675 -e PORT=1000 -e INSTANCE_TOKEN=XXXX derekbekoe/prompt-instance-azure-cli:0.6
 ```
