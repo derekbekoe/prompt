@@ -148,9 +148,9 @@ def get_container_url(repo_name, user_id, pr_number, resource_group):
         instance_token = next((x.value for x in candidate.containers[0].environment_variables if x.name == 'INSTANCE_TOKEN'), None)
         if INSTANCE_DNS_ZONE:
             add_dns_a_record(candidate.name, candidate.ip_address.ip)
-            container_url = 'http://{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
+            container_url = '//{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
         else:
-            container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
+            container_url = '//{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
         return container_url
     import uuid
     # The name can't be too long
@@ -158,9 +158,9 @@ def get_container_url(repo_name, user_id, pr_number, resource_group):
     candidate = create_container(name, INSTANCE_IMAGE_NAME, pr_number, user_id, resource_group)
     instance_token = next((x.value for x in candidate.containers[0].environment_variables if x.name == 'INSTANCE_TOKEN'), None)
     if INSTANCE_DNS_ZONE:
-        container_url = 'http://{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
+        container_url = '//{}.{}:{}/?token={}'.format(candidate.name, INSTANCE_DNS_ZONE, candidate.ip_address.ports[0].port, instance_token)
     else:
-        container_url = 'http://{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
+        container_url = '//{}:{}/?token={}'.format(candidate.ip_address.ip, candidate.ip_address.ports[0].port, instance_token)
     return container_url
 
 def delete_old_containers(resource_group):
