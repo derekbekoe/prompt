@@ -1,8 +1,7 @@
 FROM ubuntu:16.04
 
 # Clone and use a specific commit as we haven't tested it with the latest.
-# Prime site-packages so it doesn't have to install everything from scratch
-RUN apt-get update && apt-get install -y git && apt-get install -y curl && git clone https://github.com/sourcelair/xterm.js.git xtermjs && cd xtermjs && git reset --hard ea07bf8f694a6e9714779b19c174e26162c39196 && cd - && curl -sL https://deb.nodesource.com/setup_6.x -o node_install.sh && bash node_install.sh &&  apt-get install -y nodejs libssl-dev libffi-dev python-dev build-essential python-pip && cd xtermjs && npm --silent install && pip install --no-cache-dir --upgrade pip azure-cli && rm -rf /var/lib/apt/lists/* && echo "\
+RUN apt-get update && apt-get install -y git && apt-get install -y curl && git clone https://github.com/sourcelair/xterm.js.git xtermjs && cd xtermjs && git reset --hard ea07bf8f694a6e9714779b19c174e26162c39196 && cd - && curl -sL https://deb.nodesource.com/setup_6.x -o node_install.sh && bash node_install.sh &&  apt-get install -y nodejs libssl-dev libffi-dev python-dev build-essential python-pip && cd xtermjs && npm --silent install && rm -rf /var/lib/apt/lists/* && echo "\
 _python_argcomplete() {\n\
     local IFS='\v'\n\
     COMPREPLY=( \$(IFS=\"\$IFS\"                   COMP_LINE=\"\$COMP_LINE\"                   COMP_POINT=\"\$COMP_POINT\"                   _ARGCOMPLETE_COMP_WORDBREAKS=\"\$COMP_WORDBREAKS\"                   _ARGCOMPLETE=1                   \"\$1\" 8>&1 9>&2 1>/dev/null 2>/dev/null) )\n\
