@@ -29,6 +29,9 @@ INSTANCE_IMAGE_NAME = os.environ.get('INSTANCE_IMAGE_NAME')
 INSTANCE_RESOURCE_GROUP = os.environ.get('INSTANCE_RESOURCE_GROUP')
 INSTANCE_DNS_ZONE = os.environ.get('INSTANCE_DNS_ZONE')
 DNS_RESOURCE_GROUP = os.environ.get('DNS_RESOURCE_GROUP')
+SHARE_NAME = os.environ.get('SHARE_NAME')
+SHARE_STORAGE_ACCOUNT_NAME = os.environ.get('SHARE_STORAGE_ACCOUNT_NAME')
+SHARE_STORAGE_ACCOUNT_KEY = os.environ.get('SHARE_STORAGE_ACCOUNT_KEY')
 # Token for clean-up function
 ACI_FUNCTION_TOKEN = os.environ.get('ACI_FUNCTION_TOKEN')
 
@@ -101,8 +104,9 @@ def root():
 
 def create_container(name, image, pr_number, user_id, resource_group, port=None, location='westus'):
     from azure.mgmt.containerinstance.models import (ContainerGroup, Container, ContainerPort, Port, IpAddress,
-                                                 ImageRegistryCredential, ResourceRequirements, ResourceRequests,
-                                                 ContainerGroupNetworkProtocol, OperatingSystemTypes, EnvironmentVariable)
+                                                     ImageRegistryCredential, ResourceRequirements, ResourceRequests,
+                                                     ContainerGroupNetworkProtocol, OperatingSystemTypes, EnvironmentVariable,
+                                                     Volume, AzureFileVolume, VolumeMount)
     from random import randint
     import secrets
     pr_number = str(pr_number)
@@ -119,14 +123,17 @@ def create_container(name, image, pr_number, user_id, resource_group, port=None,
                           image=image,
                           resources=container_resource_requirements,
                           ports=[ContainerPort(port=port)],
-                          environment_variables=environment_variables)
+                          environment_variables=environment_variables,
+                          volume_mounts=[VolumeMount('volume1', '/cert', read_only=True)])
     cgroup_ip_address = IpAddress(ports=[Port(protocol=ContainerGroupNetworkProtocol.tcp, port=port)])
     cgroup_os_type = OperatingSystemTypes.linux
+    afv = AzureFileVolume(SHARE_NAME, SHARE_STORAGE_ACCOUNT_NAME, read_only=True, storage_account_key=SHARE_STORAGE_ACCOUNT_KEY)
     cgroup = ContainerGroup(location=location,
                             containers=[container],
                             os_type=cgroup_os_type,
                             ip_address=cgroup_ip_address,
-                            tags=tags)
+                            tags=tags,
+                            volumes=[Volume('volume1', afv)])
     return get_aci_client().container_groups.create_or_update(resource_group, name, cgroup)
 
 def get_aci_client():
