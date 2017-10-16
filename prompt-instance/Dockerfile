@@ -1,22 +1,8 @@
 FROM ubuntu:16.04
 
-RUN apt-get update
-RUN apt-get install -y git vim nano
-RUN apt-get install -y curl
 # Clone and use a specific commit as we haven't tested it with the latest.
-RUN git clone https://github.com/sourcelair/xterm.js.git xtermjs; cd xtermjs; git reset --hard ea07bf8f694a6e9714779b19c174e26162c39196; cd -
-# Install xterm, az, jpterm dependencies
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get install -y nodejs curl libssl-dev libffi-dev python-dev build-essential python-pip
-
-# Install xterm
-WORKDIR xtermjs
-RUN npm --silent install
-
 # Prime site-packages so it doesn't have to install everything from scratch
-RUN pip install --upgrade pip jmespath-terminal azure-cli
-
-RUN echo "\
+RUN apt-get update && apt-get install -y git vim nano && apt-get install -y curl && git clone https://github.com/sourcelair/xterm.js.git xtermjs && cd xtermjs && git reset --hard ea07bf8f694a6e9714779b19c174e26162c39196 && cd - && curl -sL https://deb.nodesource.com/setup_6.x -o node_install.sh && bash node_install.sh &&  apt-get install -y nodejs libssl-dev libffi-dev python-dev build-essential python-pip && cd xtermjs && npm --silent install && pip install --upgrade pip jmespath-terminal azure-cli && echo "\
 _python_argcomplete() {\n\
     local IFS='\v'\n\
     COMPREPLY=( \$(IFS=\"\$IFS\"                   COMP_LINE=\"\$COMP_LINE\"                   COMP_POINT=\"\$COMP_POINT\"                   _ARGCOMPLETE_COMP_WORDBREAKS=\"\$COMP_WORDBREAKS\"                   _ARGCOMPLETE=1                   \"\$1\" 8>&1 9>&2 1>/dev/null 2>/dev/null) )\n\
