@@ -36,7 +36,7 @@ function createTerminal() {
     term.open(terminalContainer, true);
     term.writeln('Welcome!');
     term.writeln("Use 'git log' to view commit information.");
-    term.writeln("Ctrl+D to exit container and refresh to pull new commits.");
+    term.writeln("Use 'refresh' to build with new commits.");
     term.fit();
 
     setTimeout(() => {
