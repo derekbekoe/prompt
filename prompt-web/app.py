@@ -172,7 +172,7 @@ def get_container_url(repo_name, user_id, pr_number, resource_group):
 
 def delete_old_containers(resource_group):
     import datetime
-    EXPIRY_DELTA = datetime.timedelta(minutes=15)
+    EXPIRY_DELTA = datetime.timedelta(minutes=60)
     client = get_aci_client()
     all_containers = client.container_groups.list_by_resource_group(resource_group)
     to_delete = []
