@@ -1,3 +1,11 @@
+
+## Running with Docker
+
+```
+docker build .
+docker run -it --rm -p 5000:5000 IMAGE_ID
+```
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
