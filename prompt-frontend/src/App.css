@@ -2,14 +2,15 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.Hero-logo {
+  height: 400px;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
+.App-hero {
+  background-color: #3f51b5;
+  height: 80vh;
+  min-height: 620px;
+  max-height: 820px;
   padding: 20px;
   color: white;
 }
@@ -20,9 +21,4 @@
 
 .App-intro {
   font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
