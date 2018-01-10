@@ -1,0 +1,18 @@
+{
+  "name": "prompt-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@sendgrid/mail": "^6.1.4",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "node start-client.js"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1"
+  }
+}

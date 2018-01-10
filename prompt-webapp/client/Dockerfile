@@ -3,6 +3,9 @@ FROM node:8.9
 # Override the base log level (info).
 ENV NPM_CONFIG_LOGLEVEL warn
 
+# Sendgrid API Key
+ENV SENDGRID_API_KEY 'YOUR_API_KEY'
+
 # Install and configure `serve`.
 RUN npm install -g serve
 CMD serve -s build

@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
 import Card, { CardActions, CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-
+import Paper from 'material-ui/Paper'
 import Button from 'material-ui/Button';
+
+import ApiClient from "./ApiClient";
 
 
 const styles = theme => ({
@@ -25,27 +28,53 @@ const styles = theme => ({
   },
 });
 
+
 class TextFields extends React.Component {
-  state = {
-    name: '',
-    multiline: '',
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      multiline: '',
+      emailSent: false
+    };
+
+    // This binding is necessary to make `this` work in the callback
+    this.handleSendInterestEmail = this.handleSendInterestEmail.bind(this);
+  }
 
   handleChange = name => event => {
     this.setState({
       [name]: event.target.value,
     });
   };
+  
+  handleSendInterestEmail() {
+    ApiClient.sendInterestEmail(this.state.name, this.state.multiline, result => {
+      console.log(result);
+      this.setState({
+        emailSent: true
+      });
+    });
+  }
 
   render() {
     const { classes } = this.props;
+
+    if (this.state.emailSent) {
+      return (
+        <Card raised className="Hero-signup">
+          <CardContent>
+            <Typography className={classes.title}>Sign up</Typography>
+            <Typography>Thank you, an email has been sent!</Typography>
+          </CardContent>
+        </Card>
+      );
+    }
 
     return (
       <Card raised className="Hero-signup">
         <CardContent>
         <Typography className={classes.title}>Sign up</Typography>
-        {/* <h1>Thank you!</h1>
-        <h2>Email sent to {this.state.name}</h2> */}
         <form noValidate className="Hero-signup-form" autoComplete="off">
           <TextField
             required
@@ -66,7 +95,7 @@ class TextFields extends React.Component {
             onChange={this.handleChange('multiline')}
             margin="normal"
           />
-          <Button raised color="accent" style={{"margin": "10px 0px"}}>
+          <Button raised color="accent" style={{"margin": "10px 0px"}} onClick={this.handleSendInterestEmail}>
               Submit
             </Button>
         </form>
