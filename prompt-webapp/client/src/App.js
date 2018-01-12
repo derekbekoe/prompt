@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Switch, Route } from 'react-router-dom'
+
 import logo from './logo.svg';
 import './App.css';
 
@@ -9,8 +11,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        {/* <HomePage /> */}
-        <PRPage />
+        <Switch>
+          <Route exact path='/' component={HomePage}/>
+          <Route path='/r/:org/:repo/:prNum' component={PRPage}/>
+        </Switch>
       </div>
     );
   }
