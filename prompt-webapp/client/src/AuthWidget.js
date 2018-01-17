@@ -90,8 +90,28 @@ class NotLoggedInSpan extends Component {
 
     handleLogin() {
         // TODO Log in
-        this.props.onAuthChange(true);
-    }
+      var payload = {
+        callback: window.location.href,
+      };
+    
+      var data = JSON.stringify( payload );
+      return fetch(`/api/login`, {
+        accept: "application/json",
+        headers: {"Content-Type": "application/json"},
+        method: 'POST',
+        credentials: 'include',
+        body: data
+      })
+        .then(function(res) {
+          return res.json();
+        })
+        .then(function(json) {
+          var uri = json.uri;
+          console.log(json, uri);
+          window.open(uri, '_self');
+        });
+          // this.props.onAuthChange(true);
+      }
 
     render() {
         return <Button color="contrast" onClick={this.handleLogin}>Login</Button>;
