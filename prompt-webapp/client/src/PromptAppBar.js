@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
@@ -7,7 +7,9 @@ import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
-
+import AccountCircle from 'material-ui-icons/AccountCircle';
+import Switch from 'material-ui/Switch';
+import Menu, { MenuItem } from 'material-ui/Menu';
 
 import SvgIcon from 'material-ui/SvgIcon';
 
@@ -28,7 +30,6 @@ function GitHubButton(props) {
   if (!props.githubSrc) {
     return null;
   }
-
   return (
     <a title="GitHub" href={props.githubSrc} target="_blank">
           <SvgIcon viewBox="0 0 24 24">
@@ -38,24 +39,138 @@ function GitHubButton(props) {
   );
 }
 
-function ButtonAppBar(props) {
-  const { classes } = props;
-  return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton className={classes.menuButton} color="contrast" aria-label="Menu">
-            {/* <MenuIcon /> */}
-          </IconButton>
-          <Typography type="title" color="inherit" className={classes.flex}>
-            {props.title}
-          </Typography>
-          <Button color="contrast">Login</Button>
-         <GitHubButton githubSrc={props.githubSrc} />          
-        </Toolbar>
-      </AppBar>
-    </div>
-  );
+class LoggedInSpan extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      anchorEl: null,
+    };
+  }
+
+  handleChange = (event, checked) => {
+    this.setState({ auth: checked });
+  };
+
+  handleMenu = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null });
+  };
+
+  handleLogout = () => {
+    // TODO Log out
+    this.props.onAuthChange(false);
+    this.handleClose();
+  }
+  
+  handleProfile = () => {
+    window.open("https://github.com/"+this.props.user.name, "_blank");
+    this.handleClose();
+  }
+
+  render() {
+    const { classes } = this.props;
+    const user = this.props.user;
+    const { anchorEl } = this.state;
+    const open = Boolean(anchorEl);
+
+    return (
+      <div>
+        <IconButton
+          aria-owns={open ? 'user-menu-appbar' : null}
+          aria-haspopup="true"
+          onClick={this.handleMenu}
+          color="contrast"
+        >
+          <AccountCircle />
+        </IconButton>
+        <Menu
+          id="user-menu-appbar"
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          open={open}
+          onClose={this.handleClose}
+        >
+          <MenuItem onClick={this.handleProfile}>Hi {user.name}</MenuItem>
+          <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+        </Menu>
+      </div>
+    );
+  }
+}
+
+class NotLoggedInSpan extends Component {
+
+  constructor(props) {
+    super(props);
+    this.handleLogin = this.handleLogin.bind(this);
+  }
+
+  handleLogin() {
+    // TODO Log in
+    this.props.onAuthChange(true);
+  }
+
+  render() {
+    return <Button color="contrast" onClick={this.handleLogin}>Login</Button>;
+  }
+}
+
+// TODO Create a AuthWidget
+function AuthWidget(props) {
+  const auth = props.auth;
+  if (auth) {
+    return <LoggedInSpan onAuthChange={props.onAuthChange} user={props.user} />;
+  }
+  return <NotLoggedInSpan onAuthChange={props.onAuthChange} />;
+}
+
+class ButtonAppBar extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      auth: false,
+      user: {
+        name: 'tjprescott'
+      },
+    };
+    this.handleAuthChange = this.handleAuthChange.bind(this);
+  }
+
+  handleAuthChange(checked) {
+    this.setState({ auth: checked });
+  };
+
+  render() {
+    const { classes } = this.props;
+    return (
+      <div className={classes.root}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton className={classes.menuButton} color="contrast" aria-label="Menu">
+              {/* <MenuIcon /> */}
+            </IconButton>
+            <Typography type="title" color="inherit" className={classes.flex}>
+              {this.props.title}
+            </Typography>
+            <AuthWidget auth={this.state.auth} user={this.state.user} onAuthChange={this.handleAuthChange} />
+          <GitHubButton githubSrc={this.props.githubSrc} />
+          </Toolbar>
+        </AppBar>
+      </div>
+    );
+  }
 }
 
 ButtonAppBar.propTypes = {
