@@ -71,13 +71,16 @@ app.post("/api/login", (req, res) => {
 });
 
 app.get("/api/gh_oauth", (req, res) => {
+  const code = req.query.code;
+  const state = req.query.state;
+  const callback = req.query.callback;
   var data = {
     client_id: GH_CLIENT_ID,
     client_secret: GH_CLIENT_SECRET,
-    code: req.query.code,
-    state: req.query.state,
+    code: code,
+    state: state,
   };
-  if (req.session.auth_state != req.query.state) {
+  if (req.session.auth_state != state) {
     req.session = null;
     res.sendStatus(403);
     return;
@@ -91,8 +94,29 @@ app.get("/api/gh_oauth", (req, res) => {
     return r.json();
   }).then(function(a) {
     req.session.gh_token = a.access_token;
-    res.redirect(req.query.callback);
+    fetch('https://api.github.com/user', {
+      accept: "application/json",
+      headers: {'Authorization': 'token ' + a.access_token, "Accept": "application/json"},
+    })
+    .then((r) => {return r.json()})
+    .then(function(b) {
+      req.session.user = {id: b.id, name: b.name, username: b.login};
+      res.redirect(callback);
+    });
   });
+});
+
+app.get(`/api/user`, (req, res) => {
+  if (!req.session.user || !req.session.gh_token) {
+    res.sendStatus(400);
+    return;
+  }
+  res.json(req.session.user);
+});
+
+app.post("/api/logout", (req, res) => {
+  req.session = null;
+  res.sendStatus(200);
 });
 
 app.listen(app.get("port"), () => {

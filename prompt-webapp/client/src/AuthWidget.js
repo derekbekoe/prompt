@@ -20,10 +20,6 @@ class LoggedInSpan extends Component {
         };
     }
 
-    handleChange = (event, checked) => {
-        this.setState({ auth: checked });
-    };
-
     handleMenu = event => {
         this.setState({ anchorEl: event.currentTarget });
     };
@@ -34,12 +30,20 @@ class LoggedInSpan extends Component {
 
     handleLogout = () => {
         // TODO Log out
-        this.props.onAuthChange(false);
+        fetch(`/api/logout`, {
+          accept: "application/json",
+          headers: {"Content-Type": "application/json"},
+          credentials: 'include',
+          method: 'POST',
+        })
+        .then((res) => {
+          this.props.onLogout();
+        });
         this.handleClose();
     }
 
     handleProfile = () => {
-        window.open("https://github.com/"+this.props.user.name, "_blank");
+        window.open("https://github.com/" + this.props.user.username, "_blank");
         this.handleClose();
     }
 
@@ -73,7 +77,7 @@ class LoggedInSpan extends Component {
             open={open}
             onClose={this.handleClose}
             >
-            <MenuItem onClick={this.handleProfile}>Hi {user.name}</MenuItem>
+            <MenuItem onClick={this.handleProfile}>Hi {user.name ? user.name : user.username}</MenuItem>
             <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
             </Menu>
         </div>
@@ -89,7 +93,6 @@ class NotLoggedInSpan extends Component {
     }
 
     handleLogin() {
-        // TODO Log in
       var payload = {
         callback: window.location.href,
       };
@@ -110,7 +113,6 @@ class NotLoggedInSpan extends Component {
           console.log(json, uri);
           window.open(uri, '_self');
         });
-          // this.props.onAuthChange(true);
       }
 
     render() {
@@ -124,26 +126,37 @@ class AuthWidget extends Component {
     super(props);
     // eventually this state will be lifted up once others start needing it
     this.state = {
-      auth: false,
-      user: {
-        name: 'derekbekoe'
-      },
+      user: undefined,
     };
-    this.handleAuthChange = this.handleAuthChange.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
-  handleAuthChange(checked) {
-    this.setState({ auth: checked });
-  };
+  componentWillMount() {
+    fetch(`/api/user`, {
+      accept: "application/json",
+      headers: {"Content-Type": "application/json"},
+      credentials: 'include',
+    })
+    .then((res) => {return res.json()})
+    .then((user) => {
+      this.setState({user: user});
+    })
+    .catch((reason) => {
+      console.error(reason);
+      this.setState({user: undefined});
+    });
+  }
+
+  handleLogout() {
+    this.setState({user: undefined});
+  }
 
   render() {
-    const auth = this.state.auth;
     const user = this.state.user;
-  
-    if (auth) {
-      return <LoggedInSpan onAuthChange={this.handleAuthChange} user={user} />;
+    if (user) {
+      return <LoggedInSpan user={user} onLogout={this.handleLogout} />;
     }
-    return <NotLoggedInSpan onAuthChange={this.handleAuthChange} />;
+    return <NotLoggedInSpan />;
   }
 }
 
