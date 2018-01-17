@@ -13,6 +13,8 @@ import Menu, { MenuItem } from 'material-ui/Menu';
 
 import SvgIcon from 'material-ui/SvgIcon';
 
+import AuthWidget from './AuthWidget'
+
 const styles = {
   root: {
     width: '100%',
@@ -39,118 +41,11 @@ function GitHubButton(props) {
   );
 }
 
-class LoggedInSpan extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      anchorEl: null,
-    };
-  }
-
-  handleChange = (event, checked) => {
-    this.setState({ auth: checked });
-  };
-
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  };
-
-  handleClose = () => {
-    this.setState({ anchorEl: null });
-  };
-
-  handleLogout = () => {
-    // TODO Log out
-    this.props.onAuthChange(false);
-    this.handleClose();
-  }
-  
-  handleProfile = () => {
-    window.open("https://github.com/"+this.props.user.name, "_blank");
-    this.handleClose();
-  }
-
-  render() {
-    const { classes } = this.props;
-    const user = this.props.user;
-    const { anchorEl } = this.state;
-    const open = Boolean(anchorEl);
-
-    return (
-      <div>
-        <IconButton
-          aria-owns={open ? 'user-menu-appbar' : null}
-          aria-haspopup="true"
-          onClick={this.handleMenu}
-          color="contrast"
-        >
-          <AccountCircle />
-        </IconButton>
-        <Menu
-          id="user-menu-appbar"
-          anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          open={open}
-          onClose={this.handleClose}
-        >
-          <MenuItem onClick={this.handleProfile}>Hi {user.name}</MenuItem>
-          <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
-        </Menu>
-      </div>
-    );
-  }
-}
-
-class NotLoggedInSpan extends Component {
-
-  constructor(props) {
-    super(props);
-    this.handleLogin = this.handleLogin.bind(this);
-  }
-
-  handleLogin() {
-    // TODO Log in
-    this.props.onAuthChange(true);
-  }
-
-  render() {
-    return <Button color="contrast" onClick={this.handleLogin}>Login</Button>;
-  }
-}
-
-// TODO Create a AuthWidget
-function AuthWidget(props) {
-  const auth = props.auth;
-  if (auth) {
-    return <LoggedInSpan onAuthChange={props.onAuthChange} user={props.user} />;
-  }
-  return <NotLoggedInSpan onAuthChange={props.onAuthChange} />;
-}
-
 class ButtonAppBar extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      auth: false,
-      user: {
-        name: 'tjprescott'
-      },
-    };
-    this.handleAuthChange = this.handleAuthChange.bind(this);
   }
-
-  handleAuthChange(checked) {
-    this.setState({ auth: checked });
-  };
 
   render() {
     const { classes } = this.props;
@@ -164,7 +59,7 @@ class ButtonAppBar extends Component {
             <Typography type="title" color="inherit" className={classes.flex}>
               {this.props.title}
             </Typography>
-            <AuthWidget auth={this.state.auth} user={this.state.user} onAuthChange={this.handleAuthChange} />
+            <AuthWidget />
           <GitHubButton githubSrc={this.props.githubSrc} />
           </Toolbar>
         </AppBar>
