@@ -38,6 +38,7 @@ class LoggedInSpan extends Component {
         })
         .then((res) => {
           this.props.onLogout();
+          window.location.pathname = '/';
         });
         this.handleClose();
     }
