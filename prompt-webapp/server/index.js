@@ -141,16 +141,16 @@ var getAzureClient = (clientClass, cb) => {
 
 var apiGetContainer = (req, res) => {
   const prNumber = req.query.pr;
-  if (!prNumber) {
-    res.sendStatus(400);
-    return;
-  }
   if (!req.session || !req.session.user.id) {
     res.sendStatus(403);
     return;
   }
+  if (!prNumber) {
+    res.sendStatus(400);
+    return;
+  }
+  // TODO use the one from the session
   // const userId = req.session.user.id;
-  // test pr = 5329
   const userId = '6c35b389-284a-4416-ab4d-c6ba5f44ea27';
   getAzureClient(ContainerInstanceManagementClient, (aciClient) => {
     aciClient.containerGroups.listByResourceGroup(AZURE_RESOURCE_GROUP)
