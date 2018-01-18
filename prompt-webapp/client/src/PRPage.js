@@ -24,7 +24,7 @@ class InstanceView extends Component {
     if (instanceSrc) {
       return <InstanceFrame src={instanceSrc} />
     }
-    return <InstanceLoadingFrame onInstanceReady={this.handleInstanceReady} />
+    return <InstanceLoadingFrame onInstanceReady={this.handleInstanceReady} prNum={this.props.prNum}/>
   }
 
 }
@@ -44,7 +44,7 @@ class PRView extends Component {
     return (
       <div>
         <PromptAppBar title={this.title} githubSrc={'https://github.com/'+this.props.match.params.org+'/'+this.props.match.params.repo+'/pull/'+this.props.match.params.prNum} />
-        <InstanceView />
+        <InstanceView prNum={this.props.match.params.prNum} />
         <Footer />
       </div>
     );

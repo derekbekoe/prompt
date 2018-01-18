@@ -24,20 +24,7 @@ const styles = theme => ({
 });
 
 function getSteps() {
-  return ['Creating your instance', 'Waiting for DNS propogation', 'Starting your instance'];
-}
-
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return `For each pull request, an instance is created for you.`;
-    case 1:
-      return 'The instance has been created. We are setting up a DNS entry.';
-    case 2:
-      return `Starting up your instance. Not long now.`;
-    default:
-      return 'Unknown step';
-  }
+  return ['Checking for any running instances', 'Creating your instance', 'Waiting for DNS propagation', 'Starting your instance'];
 }
 
 class InstanceLoadingFrame extends React.Component {
@@ -54,21 +41,33 @@ class InstanceLoadingFrame extends React.Component {
   };
 
   componentDidMount() {
-    setTimeout(() => {
-      this.setState({
-          activeStep: this.state.activeStep + 1,
-      });
-    }, 1000);
-    setTimeout(() => {
-      this.setState({
-          activeStep: this.state.activeStep + 1,
-      });
-    }, 2000);
-    setTimeout(() => {
-      this.setState({
-          activeStep: this.state.activeStep + 1,
-      });
-    }, 3000);
+    fetch(`/api/container?pr=`+this.props.prNum, {
+      accept: "application/json",
+      headers: {"Content-Type": "application/json"},
+      credentials: 'include',
+    })
+    .then((res) => {return res.json()})
+    .then((res) => {
+      this.props.onInstanceReady(res.instanceSrc);
+    })
+    .catch((reason) => {
+      console.error(reason);
+    });
+    // setTimeout(() => {
+    //   this.setState({
+    //       activeStep: this.state.activeStep + 1,
+    //   });
+    // }, 1000);
+    // setTimeout(() => {
+    //   this.setState({
+    //       activeStep: this.state.activeStep + 1,
+    //   });
+    // }, 2000);
+    // setTimeout(() => {
+    //   this.setState({
+    //       activeStep: this.state.activeStep + 1,
+    //   });
+    // }, 3000);
   }
 
   render() {
@@ -83,9 +82,6 @@ class InstanceLoadingFrame extends React.Component {
             return (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
-                {/* <StepContent>
-                  <Typography>{getStepContent(index)}</Typography>
-                </StepContent> */}
               </Step>
             );
           })}

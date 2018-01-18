@@ -30,9 +30,9 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
-SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-GH_CLIENT_ID = process.env.GH_CLIENT_ID;
-GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET;
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const GH_CLIENT_ID = process.env.GH_CLIENT_ID;
+const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET;
 
 sgMail.setApiKey(SENDGRID_API_KEY);
 
@@ -118,6 +118,63 @@ app.post("/api/logout", (req, res) => {
   req.session = null;
   res.sendStatus(200);
 });
+
+// ACI Endpoints - Start
+
+var msRestAzure = require('ms-rest-azure');
+var ContainerInstanceManagementClient = require("azure-arm-containerinstance");
+
+const AZURE_SUB_ID = process.env.AZURE_SUB_ID;
+const AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID;
+const AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
+const AZURE_TENANT_ID = process.env.AZURE_TENANT_ID;
+const AZURE_RESOURCE_GROUP = process.env.AZURE_RESOURCE_GROUP;
+const AZURE_DNS_ZONE = process.env.AZURE_DNS_ZONE;
+
+var getAzureClient = (clientClass, cb) => {
+  msRestAzure.loginWithServicePrincipalSecret(AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID, (err, credentials) => {
+    const client = new clientClass(credentials, AZURE_SUB_ID);
+    cb(client);
+  });
+};
+
+
+var apiGetContainer = (req, res) => {
+  const prNumber = req.query.pr;
+  if (!prNumber) {
+    res.sendStatus(400);
+    return;
+  }
+  if (!req.session || !req.session.user.id) {
+    res.sendStatus(403);
+    return;
+  }
+  // const userId = req.session.user.id;
+  // test pr = 5329
+  const userId = '6c35b389-284a-4416-ab4d-c6ba5f44ea27';
+  getAzureClient(ContainerInstanceManagementClient, (aciClient) => {
+    aciClient.containerGroups.listByResourceGroup(AZURE_RESOURCE_GROUP)
+    .then((containers) => {
+      const foundContainers = containers.filter((el) => {
+        return el.tags['prNumber'] == prNumber && el.tags['userId'] == userId;
+      });
+      if (foundContainers && foundContainers.length == 1) {
+        const candidate = foundContainers[0];
+        const instanceToken = candidate.containers[0].environmentVariables.filter((el) => {
+          return el.name == 'INSTANCE_TOKEN';
+        })[0].value;
+        const containerUrl = 'https://'+candidate.name+'.'+AZURE_DNS_ZONE+':'+candidate.ipAddress.ports[0].port+'/?token='+instanceToken
+        res.json({instanceSrc: containerUrl});
+      } else {
+        res.sendStatus(404);
+      }
+    });
+  });
+};
+
+app.get("/api/container", apiGetContainer);
+
+// ACI Endpoints - End
 
 app.listen(app.get("port"), () => {
   console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
