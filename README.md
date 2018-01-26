@@ -1,30 +1,24 @@
 # Prompt
-Instantly view changes to a PR.
+Cloud-based terminals for your developer experiences.
 
-Visit https://prompt.ws
+Visit the experimental preview at https://prompt.ws
+
+![https://prompt.ws](doc/prompt-ws.png)
+
+
+## Features
+
+#### Instantly view PR changes in the browser
+
+#### (More coming soon)
+
+## Developer Guide
+
+- Coming soon
+
 
 ## Azure Services
 
-- Azure App Service for Linux - Frontend of the app.
-- Azure Container Instances - Used to host your private instance.
-- Azure Functions - Periodically delete old container instances.
-
-## Manually starting the containers
-
-### Web frontend
-
-Example:
-```bash
-cd prompt-web
-sudo docker build -t derekbekoe/prompt-web:0.15 .
-docker run -d -p 5000:80 -e APP_SECRET=XXXX -e AUTH_TENANT=XXXX -e AUTH_CLIENTID=XXXX -e AUTH_CLIENTSECRET=4XXXX -e AUTH_AUTHORITYURL=XXXX -e HOSTNAME='' -e SUBSCRIPTION_ID=XXXX -e INSTANCE_IMAGE_NAME=XXXX -e INSTANCE_RESOURCE_GROUP=XXXX -e ACI_FUNCTION_TOKEN=XXXX derekbekoe/prompt-web:0.15
-```
-
-### Instance container
-
-Example:
-```bash
-cd prompt-instance
-sudo docker build -t derekbekoe/prompt-instance-azure-cli:0.7 .
-docker run -d -p 5001:1000 -e PR_NUM=4675 -e PORT=1000 -e INSTANCE_TOKEN=XXXX -v /prompt/cert/:/cert:ro derekbekoe/prompt-instance-azure-cli:0.7
-```
+- Azure App Service for Linux - Hosts the web app container.
+- Azure Container Instances - Used to host private instances.
+- Azure Functions - Periodically deletes old container instances.
