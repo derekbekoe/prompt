@@ -3,7 +3,7 @@ Cloud-based terminals for your developer experiences.
 
 Visit the experimental preview at https://prompt.ws
 
-![https://prompt.ws](doc/prompt-ws.png)
+![https://prompt.ws](docs/prompt-ws.png)
 
 
 ## Features
